@@ -1,30 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Login from './Login';
+import Signup from './Signup';
+import './App.css';
 
-function App() {
-  const [response, setResponse] = useState(null);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    // Replace with your Flask server URL
-    fetch('http://localhost:5000/status')
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          setResponse(result.status);
-        },
-        (error) => {
-          setError(error);
-        }
-      );
-  }, []);
-
+const App = () => {
   return (
-    <div className="App">
-      <h1>Flask Response</h1>
-      {error && <p>Error: {error.message}</p>}
-      {response ? <p>{response}</p> : <p>Loading...</p>}
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
