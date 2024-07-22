@@ -1,0 +1,53 @@
+.ats-container {
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .ats-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .ats-textarea {
+    width: 100%;
+    height: 150px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .ats-file-input {
+    margin-bottom: 20px;
+  }
+  
+  .ats-submit-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .ats-submit-button:hover {
+    background-color: #45a049;
+  }
+  
+  .ats-response {
+    margin-top: 20px;
+    text-align: left;
+  }
+  
+  .ats-response pre {
+    background-color: #e8e8e8;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
