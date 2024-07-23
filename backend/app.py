@@ -3,28 +3,18 @@ from flask_cors import CORS
 import google.generativeai as genai
 import os
 import PyPDF2 as pdf
+from youtube_transcript_api import YouTubeTranscriptApi
 from dotenv import load_dotenv
 from db_connection import get_db_connection
+from API import gemini_api_key
 
 app = Flask(__name__)
 CORS(app)
 
+# Configure the Gemini API
+genai.configure(api_key=gemini_api_key)
 
-gemini_api = "AIzaSyCa5lBej0TzsYPcIdKzbrm81QKQWhenSXI"
-genai.configure(api_key=gemini_api)
-def get_gemini_response(input):
-    model = genai.GenerativeModel('gemini-pro')
-    response = model.generate_content(input)
-    return response.text
-
-def input_pdf_text(uploaded_file):
-    reader = pdf.PdfReader(uploaded_file)
-    text = ""
-    for page in range(len(reader.pages)):
-        page = reader.pages[page]
-        text += str(page.extract_text())
-    return text
-
+# Prompt template for ATS evaluation
 input_prompt_template = """
 Hey Act Like a skilled or very experienced ATS (Application Tracking System)
 with a deep understanding of the tech field, software engineering, data science, data analysis,
@@ -40,6 +30,36 @@ I want the response in one single string having the structure
 {{"JD Match":"%","MissingKeywords:[]","Profile Summary":""}}
 """
 
+# Prompt template for YouTube video summarization
+youtube_prompt = """You are a YouTube video summarizer. You will be taking the transcript text
+and summarizing the entire video and providing the important summary in points
+within 250 words. Please provide the summary of the text given here:  """
+
+def get_gemini_response(input):
+    model = genai.GenerativeModel('gemini-pro')
+    response = model.generate_content(input)
+    return response.text
+
+def input_pdf_text(uploaded_file):
+    reader = pdf.PdfReader(uploaded_file)
+    text = ""
+    for page in range(len(reader.pages)):
+        page = reader.pages[page]
+        text += str(page.extract_text())
+    return text
+
+def extract_transcript_details(youtube_video_url):
+    try:
+        video_id = youtube_video_url.split("=")[1]
+        
+        transcript_text = YouTubeTranscriptApi.get_transcript(video_id)
+        transcript = ""
+        for i in transcript_text:
+            transcript += " " + i["text"]
+        return transcript
+    except Exception as e:
+        raise e
+
 @app.route('/upload', methods=['POST'])
 def upload():
     jd = request.form['jd']
@@ -48,6 +68,18 @@ def upload():
     input_prompt = input_prompt_template.format(text=resume_text, jd=jd)
     response = get_gemini_response(input_prompt)
     return jsonify(response)
+
+@app.route('/summary', methods=['POST'])
+def summary():
+    data = request.get_json()
+    print(f"data - {data}")
+    youtube_link = data.get('youtubeLink')
+    transcript_text = extract_transcript_details(youtube_link)
+    if transcript_text:
+        summary = get_gemini_response(youtube_prompt + transcript_text)
+        print(summary)
+        return jsonify({'summary': summary})
+    return jsonify({'error': 'Failed to get transcript'}), 500
 
 @app.route('/login', methods=['POST'])
 def login():
