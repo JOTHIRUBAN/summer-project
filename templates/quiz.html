@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz</title>
+</head>
+<body>
+    <form method="get" action="/quiz">
+        <button type="submit" id="quiz" name="quiz" value="Change Questions">Change Questions</button>
+    </form>
+    <p> {{quiz|safe}}</p>
+</body>
+</html>
